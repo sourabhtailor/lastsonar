@@ -1,0 +1,51 @@
+name: Deploy PHP App with SonarQube Cloud
+
+on:
+  push:
+    branches:
+      - main  # Trigger deployment on the main branch
+  pull_request:
+    branches:
+      - main  # Trigger for pull requests to the main branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      # Set up PHP environment
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'  # Adjust to your PHP version
+
+      # Run tests (Optional but recommended)
+      - name: Run tests
+        run: |
+          vendor/bin/phpunit --coverage-text  # Adjust with your testing framework
+
+      # SonarQube Scan with Cloud URL and Token
+      - name: SonarQube Cloud Scan
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # SonarQube Cloud token stored in GitHub secrets
+        run: |
+          # Download and unzip SonarScanner
+          curl -sSLo sonar-scanner-cli-linux.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip
+          unzip sonar-scanner-cli-linux.zip
+          export PATH=$PWD/sonar-scanner-4.6.2.2472-linux/bin:$PATH
+          
+          # Run the SonarScanner with Cloud settings
+          sonar-scanner \
+            -Dsonar.projectKey=sourabhtailor_lastsonar \
+            -Dsonar.sources=. \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=$SONAR_TOKEN
+
+      # Deploy to server (Optional)
+      - name: Deploy to server
+        run: |
+          # Your custom deployment steps go here (e.g., FTP, SCP, SSH, etc.)
+          echo "Deploying the app..."
