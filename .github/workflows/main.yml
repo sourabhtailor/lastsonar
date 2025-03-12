@@ -20,6 +20,8 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: '17'
+      - name: Check Java version
+        run: java -version
 
       # Set up PHP environment
       - name: Set up PHP
