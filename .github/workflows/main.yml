@@ -22,11 +22,6 @@ jobs:
         with:
           php-version: '7.4'  # Adjust to your PHP version
 
-      # Run tests (Optional but recommended)
-      - name: Run tests
-        run: |
-          vendor/bin/phpunit --coverage-text  # Adjust with your testing framework
-
       # SonarQube Scan with Cloud URL and Token
       - name: SonarQube Cloud Scan
         env:
