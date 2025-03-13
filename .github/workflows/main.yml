@@ -1,27 +1,44 @@
-name: Deploy PHP App with SonarQube Cloud
+name: SonarCloud Analysis
 
 on:
   push:
     branches:
-      - main  # Trigger deployment on the main branch
+      - main  # Change this to your default branch
   pull_request:
     branches:
-      - main  # Trigger for pull requests to the main branch
+      - main  # Change if needed
 
 jobs:
-  build:
+  sonarcloud:
+    name: SonarCloud Analysis
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out repository
+      - name: Checkout code
         uses: actions/checkout@v2
         with:
-        # Disabling shallow clone is recommended for improving relevancy of reporting
-         fetch-depth: 0
-      - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@master
+          fetch-depth: 0  # Disabling shallow clone is recommended for improving relevancy of reporting
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'  # Adjust PHP version as needed (8.0, 7.4, etc.)
+
+      - name: Install Composer dependencies
+        run: composer install --no-progress --prefer-dist
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v2
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v1
+        with:
+          sonar-token: ${{ secrets.SONAR_TOKEN }}
         env:
-         SONAR_TOKEN: eec6d8d430321c43b66f4e1c2f435389ac084efa //Sonar Token generated 
-         SONAR_HOST_URL: https://sonarcloud.io 
-      - name: Print environment variables
-        run: echo $SONAR_TOKEN
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # Ensure you set this in GitHub Secrets
+          SONAR_HOST_URL: https://sonarcloud.io  # URL for SonarCloud
