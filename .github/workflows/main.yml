@@ -1,44 +1,19 @@
-name: SonarCloud Analysis
-
+name: Build
 on:
   push:
     branches:
-      - main  # Change this to your default branch
+      - master
   pull_request:
-    branches:
-      - main  # Change if needed
-
+    types: [opened, synchronize, reopened]
 jobs:
-  sonarcloud:
-    name: SonarCloud Analysis
+  sonarqube:
+    name: SonarQube
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Disabling shallow clone is recommended for improving relevancy of reporting
-
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.0'  # Adjust PHP version as needed (8.0, 7.4, etc.)
-
-      - name: Install Composer dependencies
-        run: composer install --no-progress --prefer-dist
-
-      - name: Cache Composer dependencies
-        uses: actions/cache@v2
-        with:
-          path: vendor
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
-
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@v1
-        with:
-          sonar-token: ${{ secrets.SONAR_TOKEN }}
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v5
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # Ensure you set this in GitHub Secrets
-          SONAR_HOST_URL: https://sonarcloud.io  # URL for SonarCloud
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
