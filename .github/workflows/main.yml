@@ -23,3 +23,5 @@ jobs:
         env:
          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} //Sonar Token generated 
          SONAR_HOST_URL: https://sonarcloud.io 
+      - name: Print environment variables
+        run: echo $SONAR_TOKEN
